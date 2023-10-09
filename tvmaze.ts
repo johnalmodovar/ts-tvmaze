@@ -5,7 +5,7 @@ const $ = jQuery;
 const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
 const $episodesList = $('#episodesList');
-const $showEpisodesButton = $('input-group-text');
+const $showEpisodesButton = $('.Show-getEpisodes');
 const $searchForm = $("#searchForm");
 
 const BASE_URL = "https://api.tvmaze.com";
@@ -111,6 +111,7 @@ async function getEpisodesOfShow(id: number): Promise<EpisodeInterface[]> {
 
 /** Given an array of episodes, create li for each episode and appends to DOM */
 function populateEpisodes(episodes: EpisodeInterface[]) {
+  $episodesList.empty();
 
   for (const episode of episodes) {
     const $episode = $(`<li>${episode.name}
@@ -123,9 +124,12 @@ function populateEpisodes(episodes: EpisodeInterface[]) {
   $episodesArea.show();
 }
 
-async function listEpisodesOnClick(evt) {
-  //we have to find teh closest LI with the show ID
-  evt.target.data('data-show-id');
+/** Handles event for showing episodes in the DOM. */
+async function listEpisodesOnClick(evt: Event): Promise<void> {
+  const showId = Number($(evt.target).closest('.Show').attr('data-show-id'));
+  const episodes = await getEpisodesOfShow(showId);
+
+  populateEpisodes(episodes);
 }
 
-$showEpisodesButton.on('click', )
+$showsList.on('click', $showEpisodesButton, listEpisodesOnClick);

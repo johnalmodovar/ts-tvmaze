@@ -10781,7 +10781,7 @@ var $ = jquery_1.default;
 var $showsList = $("#showsList");
 var $episodesArea = $("#episodesArea");
 var $episodesList = $('#episodesList');
-var $showEpisodesButton = $('input-group-text');
+var $showEpisodesButton = $('.Show-getEpisodes');
 var $searchForm = $("#searchForm");
 var BASE_URL = "https://api.tvmaze.com";
 var DEFAULT_IMAGE_URL = "https://tinyurl.com/tv-missing";
@@ -10881,6 +10881,7 @@ function getEpisodesOfShow(id) {
 }
 /** Given an array of episodes, create li for each episode and appends to DOM */
 function populateEpisodes(episodes) {
+    $episodesList.empty();
     for (var _i = 0, episodes_1 = episodes; _i < episodes_1.length; _i++) {
         var episode = episodes_1[_i];
         var $episode = $("<li>".concat(episode.name, "\n                        (season ").concat(episode.season, ",\n                        number ").concat(episode.number, ")</li>"));
@@ -10888,16 +10889,24 @@ function populateEpisodes(episodes) {
     }
     $episodesArea.show();
 }
+/** Handles event for showing episodes in the DOM. */
 function listEpisodesOnClick(evt) {
     return __awaiter(this, void 0, void 0, function () {
+        var showId, episodes;
         return __generator(this, function (_a) {
-            //we have to find teh closest LI with the show ID
-            evt.target.data('data-show-id');
-            return [2 /*return*/];
+            switch (_a.label) {
+                case 0:
+                    showId = Number($(evt.target).closest('.Show').attr('data-show-id'));
+                    return [4 /*yield*/, getEpisodesOfShow(showId)];
+                case 1:
+                    episodes = _a.sent();
+                    populateEpisodes(episodes);
+                    return [2 /*return*/];
+            }
         });
     });
 }
-$showEpisodesButton.on('click');
+$showsList.on('click', $showEpisodesButton, listEpisodesOnClick);
 
 
 /***/ })
