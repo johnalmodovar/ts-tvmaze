@@ -1,14 +1,15 @@
-import axios from "axios";
 import jQuery from 'jquery';
 
 const $ = jQuery;
 
 const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
+const $episodesList = $('#episodesList');
+const $showEpisodesButton = $('input-group-text');
 const $searchForm = $("#searchForm");
 
 const BASE_URL = "https://api.tvmaze.com";
-const BASE_IMAGE_URL = "https://tinyurl.com/tv-missing";
+const DEFAULT_IMAGE_URL = "https://tinyurl.com/tv-missing";
 
 
 interface ShowInterface {
@@ -16,6 +17,13 @@ interface ShowInterface {
   name: string;
   summary: string;
   image: string;
+}
+
+interface EpisodeInterface {
+  id: number;
+  name: string;
+  season: string;
+  number: string;
 }
 
 /** Given a search term, search for tv shows that match that query.
@@ -26,16 +34,15 @@ interface ShowInterface {
  */
 
 async function searchShowsByTerm(term: string): Promise<ShowInterface[]> {
-  // ADD: Remove placeholder & make request to TVMaze search shows API.
   const params = new URLSearchParams(`q=${term}`);
   const response = await fetch(`${BASE_URL}/search/shows?${params}`);
-  const data: Record<any, any>[] = await response.json();
+  const data = await response.json() as [];
 
-  return data.map(show => (
-    { id: show.show.id,
-      name: show.show.name,
-      summary: show.show.summary,
-      image: show.show.image.original || BASE_IMAGE_URL }
+  return data.map((s: Record<any, any>) => (
+    { id: s.show.id,
+      name: s.show.name,
+      summary: s.show.summary,
+      image: s.show.image.original || DEFAULT_IMAGE_URL }
   ));
 }
 
@@ -50,7 +57,7 @@ function populateShows(shows: ShowInterface[]): void {
         `<div data-show-id="${show.id}" class="Show col-md-12 col-lg-6 mb-4">
          <div class="media">
            <img
-              src="http://static.tvmaze.com/uploads/images/medium_portrait/160/401704.jpg"
+              src="${show.image}"
               alt="Bletchly Circle San Francisco"
               class="w-25 me-3">
            <div class="media-body">
@@ -90,8 +97,35 @@ $searchForm.on("submit", async function (evt): Promise<void> {
  *      { id, name, season, number }
  */
 
-// async function getEpisodesOfShow(id) { }
+async function getEpisodesOfShow(id: number): Promise<EpisodeInterface[]> {
+  const response = await fetch(`${BASE_URL}/shows/${id}/episodes`);
+  const data = await response.json() as [];
 
-/** Write a clear docstring for this function... */
+  return data.map((episode: Record<any, any>) => ({
+    id: episode.id,
+    name: episode.name,
+    season: episode.season,
+    number: episode.number
+  }))
+}
 
-// function populateEpisodes(episodes) { }
+/** Given an array of episodes, create li for each episode and appends to DOM */
+function populateEpisodes(episodes: EpisodeInterface[]) {
+
+  for (const episode of episodes) {
+    const $episode = $(`<li>${episode.name}
+                        (season ${episode.season},
+                        number ${episode.number})</li>`);
+
+    $episodesList.append($episode);
+  }
+
+  $episodesArea.show();
+}
+
+async function listEpisodesOnClick(evt) {
+  //we have to find teh closest LI with the show ID
+  evt.target.data('data-show-id');
+}
+
+$showEpisodesButton.on('click', )
