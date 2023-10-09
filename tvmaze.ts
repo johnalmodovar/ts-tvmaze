@@ -80,14 +80,14 @@ function populateShows(shows: ShowInterface[]): void {
  */
 
 async function searchForShowAndDisplay(): Promise<void> {
-  const term: string = $("#searchForm-term").val();
+  const term = $("#searchForm-term").val() as string;
   const shows: ShowInterface[] = await searchShowsByTerm(term);
 
   $episodesArea.hide();
   populateShows(shows);
 }
 
-$searchForm.on("submit", async function (evt): Promise<void> {
+$searchForm.on("submit", async function (evt: Event): Promise<void> {
   evt.preventDefault();
   await searchForShowAndDisplay();
 });
@@ -110,7 +110,7 @@ async function getEpisodesOfShow(id: number): Promise<EpisodeInterface[]> {
 }
 
 /** Given an array of episodes, create li for each episode and appends to DOM */
-function populateEpisodes(episodes: EpisodeInterface[]) {
+function populateEpisodes(episodes: EpisodeInterface[]): void {
   $episodesList.empty();
 
   for (const episode of episodes) {
