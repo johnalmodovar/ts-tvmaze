@@ -26,6 +26,15 @@ interface EpisodeInterface {
   number: string;
 }
 
+interface ShowResult {
+  show: {
+    id: number;
+    name: string;
+    summary: string;
+    image: {original: string} | null;
+  };
+}
+
 /** Given a search term, search for tv shows that match that query.
  *
  *  Returns (promise) array of show objects: [show, show, ...].
@@ -36,13 +45,13 @@ interface EpisodeInterface {
 async function searchShowsByTerm(term: string): Promise<ShowInterface[]> {
   const params = new URLSearchParams(`q=${term}`);
   const response = await fetch(`${BASE_URL}/search/shows?${params}`);
-  const data = await response.json() as [];
+  const data = await response.json() as ShowResult[];
 
-  return data.map((s: Record<any, any>) => (
+  return data.map(s => (
     { id: s.show.id,
       name: s.show.name,
       summary: s.show.summary,
-      image: s.show.image.original || DEFAULT_IMAGE_URL }
+      image: s.show.image?.original || DEFAULT_IMAGE_URL }
   ));
 }
 
@@ -87,7 +96,7 @@ async function searchForShowAndDisplay(): Promise<void> {
   populateShows(shows);
 }
 
-$searchForm.on("submit", async function (evt: Event): Promise<void> {
+$searchForm.on("submit", async function (evt: JQuery.SubmitEvent): Promise<void> {
   evt.preventDefault();
   await searchForShowAndDisplay();
 });
@@ -99,9 +108,9 @@ $searchForm.on("submit", async function (evt: Event): Promise<void> {
 
 async function getEpisodesOfShow(id: number): Promise<EpisodeInterface[]> {
   const response = await fetch(`${BASE_URL}/shows/${id}/episodes`);
-  const data = await response.json() as [];
+  const data = await response.json() as EpisodeInterface[];
 
-  return data.map((episode: Record<any, any>) => ({
+  return data.map(episode => ({
     id: episode.id,
     name: episode.name,
     season: episode.season,
@@ -125,7 +134,7 @@ function populateEpisodes(episodes: EpisodeInterface[]): void {
 }
 
 /** Handles event for showing episodes in the DOM. */
-async function listEpisodesOnClick(evt: Event): Promise<void> {
+async function listEpisodesOnClick(evt: JQuery.ClickEvent): Promise<void> {
   const showId = Number($(evt.target).closest('.Show').attr('data-show-id'));
   const episodes = await getEpisodesOfShow(showId);
 

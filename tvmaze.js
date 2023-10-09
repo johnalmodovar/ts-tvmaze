@@ -10804,10 +10804,13 @@ function searchShowsByTerm(term) {
                     return [4 /*yield*/, response.json()];
                 case 2:
                     data = _a.sent();
-                    return [2 /*return*/, data.map(function (s) { return ({ id: s.show.id,
-                            name: s.show.name,
-                            summary: s.show.summary,
-                            image: s.show.image.original || DEFAULT_IMAGE_URL }); })];
+                    return [2 /*return*/, data.map(function (s) {
+                            var _a;
+                            return ({ id: s.show.id,
+                                name: s.show.name,
+                                summary: s.show.summary,
+                                image: ((_a = s.show.image) === null || _a === void 0 ? void 0 : _a.original) || DEFAULT_IMAGE_URL });
+                        })];
             }
         });
     });
